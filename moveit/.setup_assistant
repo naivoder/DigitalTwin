@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: art_gazebo
+    relative_path: description/art.urdf.xacro
+    xacro_args: ""
+  SRDF:
+    relative_path: config/mobile_ur10.srdf
+  CONFIG:
+    author_name: cameron redovian
+    author_email: credovia@students.kennesaw.edu
+    generated_timestamp: 1565274257

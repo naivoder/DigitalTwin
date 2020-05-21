@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="static" default="true"/>
+  <arg name="debug" default="false"/>
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="sim" default="true" />
+  <arg name="is_using_gripper" default="false" />
+  <arg name="is_joint_limited_ur10" default="true" />
+
+  <!-- Load the mobile-arm description on the parameter server -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder	'$(find art_gazebo)/description/art.urdf.xacro' with_gripper:=$(arg is_using_gripper) is_joint_limited:=$(arg is_joint_limited_ur10)"/>
+
+  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find art_gazebo)/world/test.world"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+  </include>
+
+  <!-- Publish a static transform between the world and the base of the robot -->
+  <node if="$(arg static)" pkg="tf2_ros" type="static_transform_publisher"
+	name="base_to_world" args="0 0 0 0 0 0 1 world base" /> 
+
+  
+  <!-- Spawn a mobile arm in Gazebo, taking a description from the parameter server -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+	args="-param robot_description -urdf -model art -x -0.0  -z 0.0" />
+  
+  <!-- Fake Calibration -->
+  <node pkg="rostopic" type="rostopic" name="fake_joint_calibration"
+        args="pub /calibrated std_msgs/Bool true" />  
+
+  <!-- Controllers -->
+  <rosparam file="$(find art_gazebo)/control/joint_state_controller.yaml" command="load" />
+
+  <rosparam file="$(find ur_gazebo)/controller/arm_controller_ur10.yaml" command="load" />
+
+  
+  <node name="controller_spawner" pkg="controller_manager" type="controller_manager" respawn="false"
+	output="screen" args="spawn joint_state_controller arm_controller"
+	unless="$(arg is_using_gripper)" />
+
+  <!-- Robot state publisher -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <param name="tf_prefix" type="string" value="" />
+  </node>
+
+  <!-- Remap follow_joint_trajectory -->
+  <remap if="$(arg sim)" from="/follow_joint_trajectory" to="/arm_controller/follow_joint_trajectory" />
+  <include file="$(find art_moveit)/launch/move_group.launch">
+	<arg name="allow_trajectory_execution" value="true"/>
+        <arg name="fake_execution" value="false"/>
+  </include>
+
+</launch>

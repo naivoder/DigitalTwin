@@ -1,0 +1,24 @@
+<sdf version='1.5'>
+  <world name='ART_world'>
+  
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+  
+    <!-- A ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- MIR Block 
+    <model name='mir block'>
+    <include>
+	    <static>1</static>
+	    <uri>model://MIR_block</uri>
+	    <pose>0 0.0 0.226 0 0 0</pose>
+    </include>
+    </model>  -->
+
+  </world>
+</sdf>

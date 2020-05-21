@@ -1,0 +1,45 @@
+<sdf version='1.6'>
+  <model name='Peg'>
+    <link name='Peg'>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>.05</ixx>
+          <ixy>0.01</ixy>
+          <ixz>-0.01</ixz>
+          <iyy>.05</iyy>
+          <iyz>0.01</iyz>
+          <izz>.05</izz>
+        </inertia>
+      </inertial>
+      <collision name='Peg_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://Peg/meshes/peg.stl</uri>
+            <scale>.001 .001 .001</scale>
+          </mesh>
+        </geometry>
+	
+      </collision>
+      <visual name='Peg_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://Peg/meshes/peg.stl</uri>
+            <scale>.001 .001 .001</scale>
+          </mesh>
+        </geometry>
+	<material>
+    		<ambient>0 0.6 1 1</ambient>  
+      		<diffuse>0 0.6 1 1</diffuse>  
+      		<specular>0 0.6 1 1</specular>  
+      		<emissive>0.0 0.0 0.0 0.0</emissive> 
+	</material>
+      </visual>
+    </link>
+    <static>true</static>
+  </model>
+</sdf>

@@ -1,0 +1,4 @@
+mobile_base_fake_controller:
+  type: position_controllers/JointPositionController
+  joint: prismatic_chassis_to_world
+  pid: {p: 10.0, i: 0.0, d: 1.0}

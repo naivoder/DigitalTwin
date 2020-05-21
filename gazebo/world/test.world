@@ -1,0 +1,24 @@
+<sdf version='1.5'>
+  <world name='default'>
+  
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+  
+    <!-- A ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- Test Wall -->
+    <model name='fake_wall'>
+      <include>
+	<static>1</static>
+	<uri>model://fake_wall</uri>
+	<pose>0 1.5 .3 0 0 1.57</pose>
+      </include>
+    </model>
+    
+  </world>
+</sdf>
