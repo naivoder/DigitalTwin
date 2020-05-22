@@ -14,5 +14,5 @@
 	<param name="use_controller_manager" value="$(arg use_controller_manager)"/>
 
   <!-- loads ros_controllers to the param server -->
-  <rosparam file="$(find art_moveit)/config/controllers.yaml"/>
+  <rosparam file="$(find moveit)/config/controllers.yaml"/>
 </launch>

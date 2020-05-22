@@ -6,7 +6,7 @@
 <robot name="mobile_ur10" xmlns:xacro="http://ros.org/wiki/xacro">
 
     <!-- mobile base description -->
-    <xacro:include filename="$(find mobile_manipulator)/models/mobile_base/mobile_base.urdf.xacro"/>
+    <xacro:include filename="$(find models)/mobile_base/mobile_base.urdf.xacro"/>
     
     <joint name="arm_to_mobile_base" type="fixed">
     <!--origin xyz="0 0 ${.352 / 2}" rpy="0 0 0" /-->
@@ -335,13 +335,13 @@
         <visual>
             <origin rpy="0 0 0" xyz="0 0.093 0.11"/>
             <geometry>
-                <mesh filename="package://mobile_manipulator/models/fixed_cone/meshes/Cone100.STL"/>
+                <mesh filename="package://models/fixed_cone/meshes/Cone100.STL"/>
             </geometry>
         </visual>
         <collision>
             <origin rpy="0 0 0" xyz="0 0.093 0.11"/>
             <geometry>
-                <mesh filename="package://mobile_manipulator/models/fixed_cone/meshes/Cone100.STL"/>
+                <mesh filename="package://models/fixed_cone/meshes/Cone100.STL"/>
             </geometry>
         </collision>  
 	<inertial>
@@ -365,7 +365,7 @@
 
     <!-- Include Kinect Sensor -->
 
-    <xacro:include filename="$(find art_gazebo)/description/kinect_sensor.urdf.xacro">
+    <xacro:include filename="$(find gazebo)/description/kinect_sensor.urdf.xacro">
     </xacro:include>
 
 

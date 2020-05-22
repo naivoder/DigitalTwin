@@ -13,13 +13,13 @@
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<geometry>
-				<mesh filename="package://art_gazebo/Creel/meshes/creel.stl"/>
+				<mesh filename="package://gazebo/Creel/meshes/creel.stl"/>
 			</geometry>
 		</collision>
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<geometry>
-				<mesh filename="package://art_gazebo/Creel/meshes/creel.stl"/>
+				<mesh filename="package://gazebo/Creel/meshes/creel.stl"/>
 			</geometry>
 		</visual>
 		<inertial>
