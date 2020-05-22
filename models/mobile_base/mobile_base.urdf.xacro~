@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+<robot name="fake_MiR200"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Constants for robot dimensions -->
+  <xacro:property name="chassis_width" value=".58" />
+  <xacro:property name="chassis_length" value=".89" />
+  <xacro:property name="chassis_height" value=".2" />
+  <xacro:property name="robot_mass" value="67.0" />
+  <xacro:property name="chassis_mass" value="${.95 * robot_mass}" />
+  <xacro:property name="robot_height" value=".352" />
+  <xacro:property name="wheel_clearance" value=".01" />
+  <xacro:property name="wheel_radius" value="${(robot_height - chassis_height - wheel_clearance) / 2}" />
+  <xacro:property name="wheel_thickness" value=".02" />
+
+  <!-- Using wheels or faking it with prismatic joint connected to ground -->
+  <xacro:property name="faking_wheels" value="true" />
+  
+  <!-- Macro for cuboid mass moment of inertia -->
+  <xacro:macro name="cuboid_moment_of_inertia" params="m d1 d2 d3">
+    <inertia ixx="${m * (d2 * d2 + d3 * d3) / 12}" ixy="0.0" ixz="0.0"
+	     iyy="${m * (d1 * d1 + d3 * d3) / 12}" iyz="0.0"
+	     izz="${m * (d1 * d1 + d2 * d2) / 12}" />
+  </xacro:macro>
+
+  <!-- Macro for cylinder mass moment of inertia -->
+  <xacro:macro name="cylinder_moment_of_inertia" params="m r h">
+    <inertia ixx="${m * (3 * r * r + h * h) / 12}" ixy="0.0" ixz="0.0"
+	     iyy="${m * (3 * r * r + h * h) / 12}" iyz="0.0"
+	     izz="${m * r * r / 2}" />
+  </xacro:macro>
+
+
+  
+  <!-- Macro for wheel links -->
+  <xacro:macro name="wheel_n_link" params="n r l x y z j_type">
+    <link name="wheel_${n}_link">
+      
+      <!-- Note: must omit name="foo" because in Gazebo 7 the urdf parser has a bug that would make <gazebo reference="bar"> not work -->
+      <visual>
+	<geometry>
+	  <cylinder length="${l}" radius="${r}" />
+	</geometry>
+	<material name="red">
+	  <color rgba="1 0 0 1" />
+	</material>
+      </visual>
+
+      <!-- Note: must omit name="foo" because in Gazebo 7 the urdf parser has a bug that would make <gazebo reference="bar"> not work -->
+      <collision>
+	<geometry>
+	  <cylinder length="${l}" radius="${r}" />
+	</geometry>
+      </collision>
+      
+      <inertial>
+	<mass value="${(robot_mass - chassis_mass) / 6}" />
+	<xacro:cylinder_moment_of_inertia m="${(robot_mass - chassis_mass) / 6}" r="${wheel_radius}" h="${wheel_thickness}" />
+      </inertial>
+    </link>
+
+    <joint name="wheel_${n}_joint" type="${j_type}">
+      <axis xyz="0 0 1" />
+      <parent link="chassis" />
+      <child link="wheel_${n}_link" />
+      <origin xyz="${x} ${y} ${z}" rpy="-${pi / 2} 0 0" />
+    </joint>
+  </xacro:macro>
+
+  <!-- Macro for making a wheel frictionless -->
+  <xacro:macro name="make_wheel_n_frictionless" params="n">
+    <gazebo reference="wheel_${n}_link">
+      <mu1>0</mu1>
+      <mu2>0</mu2>
+      <material>Gazebo/Red</material>
+    </gazebo>
+  </xacro:macro>
+  
+
+  
+  <!-- Chassis link -->
+  <link name="chassis">
+    <visual name="visual">
+      <geometry>
+	<box size="${chassis_length} ${chassis_width} ${chassis_height}" />
+      </geometry>
+    </visual>
+    
+    <collision name="collision">
+      <geometry>
+	<box size="${chassis_length} ${chassis_width} ${chassis_height}" />
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="${chassis_mass}" />
+      <xacro:cuboid_moment_of_inertia m="${chassis_mass}" d1="${chassis_length}" d2="${chassis_width}" d3="${chassis_height}" />
+    </inertial>
+  </link>
+
+  
+
+  <!-- Wheel links -->
+  <xacro:wheel_n_link n="1" r="${wheel_radius}" l="${wheel_thickness}"
+		      x="${chassis_length / 2 - wheel_radius}"
+		      y="${(chassis_width - wheel_thickness) / 2}"
+		      z="${-(wheel_radius + wheel_clearance + chassis_height / 2)}"
+		      j_type="fixed"
+		      />
+  
+  <xacro:wheel_n_link n="2" r="${wheel_radius}" l="${wheel_thickness}"
+		      x="0"
+		      y="${(chassis_width - wheel_thickness) / 2}"
+		      z="${-(wheel_radius + wheel_clearance + chassis_height / 2)}"
+		      j_type="fixed"
+		      />
+  
+  <xacro:wheel_n_link n="3" r="${wheel_radius}" l="${wheel_thickness}"
+		      x="-${chassis_length / 2 - wheel_radius}"
+		      y="${(chassis_width - wheel_thickness) / 2}"
+		      z="${-(wheel_radius + wheel_clearance + chassis_height / 2)}"
+		      j_type="fixed"
+		      />
+  
+  <xacro:wheel_n_link n="4" r="${wheel_radius}" l="${wheel_thickness}"
+		      x="-${chassis_length / 2 - wheel_radius}"
+		      y="-${(chassis_width - wheel_thickness) / 2}"
+		      z="${-(wheel_radius + wheel_clearance + chassis_height / 2)}"
+		      j_type="fixed"
+		      />
+  
+  <xacro:wheel_n_link n="5" r="${wheel_radius}" l="${wheel_thickness}"
+		      x="0"
+		      y="-${(chassis_width - wheel_thickness) / 2}"
+		      z="${-(wheel_radius + wheel_clearance + chassis_height / 2)}"
+		      j_type="fixed"
+		      />
+  
+  <xacro:wheel_n_link n="6" r="${wheel_radius}" l="${wheel_thickness}"
+		      x="${chassis_length / 2 - wheel_radius}"
+		      y="-${(chassis_width - wheel_thickness) / 2}"
+		      z="${-(wheel_radius + wheel_clearance + chassis_height / 2)}"
+		      j_type="fixed"
+		      />
+
+  
+  <!-- Wheeled robots drift inexplicably in Gazebo 18/03/21 -->
+  <xacro:unless value="${faking_wheels == 'true'}">
+    <!-- Change friction parameters for caster wheels -->
+    <xacro:make_wheel_n_frictionless n="1" />
+    <xacro:make_wheel_n_frictionless n="3" />
+    <xacro:make_wheel_n_frictionless n="4" />
+    <xacro:make_wheel_n_frictionless n="6" />
+    
+    <!-- MQMX to (possibly?) replace this with ros control plugin -->
+    <gazebo>
+      <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+	<leftJoint>wheel_2_joint</leftJoint>
+	<rightJoint>wheel_5_joint</rightJoint>
+	<robotBaseFrame>chassis</robotBaseFrame>
+	<wheelSeparation>${chassis_width - wheel_thickness}</wheelSeparation>
+	<wheelDiameter>${2 * wheel_radius}</wheelDiameter>
+	<publishWheelJointState>true</publishWheelJointState>
+	<legacyMode>false</legacyMode>
+	<robotNamespace>mobile_base</robotNamespace>      
+	<alwaysOn>true</alwaysOn>
+	<updateRate>100</updateRate>
+	<torque>20</torque>
+	<commandTopic>cmd_vel</commandTopic>
+	<odometryTopic>odom_diffdrive</odometryTopic>
+	<odometryFrame>odom</odometryFrame>
+	<robotBaseFrame>chassis</robotBaseFrame>
+      </plugin>
+    </gazebo>
+  </xacro:unless>
+
+  
+  <!-- To circumvent the problem of the slowly-drifting base, attach it to ground via joint -->
+  <xacro:if value="${faking_wheels == 'true'}">
+    <link name="world"/>
+    <joint name="prismatic_chassis_to_world" type="prismatic">
+      <origin xyz="0 0 ${2 * wheel_radius + wheel_clearance + chassis_height / 2}" rpy="0 0 0" />
+      <parent link="world"/>
+      <child link="chassis"/>
+      <limit effort="1000.0" lower="-100" upper="100" velocity="2"/>
+    </joint>
+    
+    <transmission name="prismatic_chassis_to_world_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="prismatic_chassis_to_world">
+	<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="prismatic_chassis_to_world_motor">
+	<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+	<mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:if>
+
+</robot>

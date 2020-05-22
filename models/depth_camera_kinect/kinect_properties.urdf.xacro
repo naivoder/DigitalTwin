@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<root xmlns:xacro="http://ros.org/wiki/xacro"
+      name="kinect_xacro_properties">
+  <!-- Translation and rotation of camera from its base link -->
+  <xacro:property name="cam_px" value="-0.12" />
+  <xacro:property name="cam_py" value="0" />
+  <xacro:property name="cam_pz" value="0.08" />
+  <xacro:property name="cam_or" value="0" />
+  <xacro:property name="cam_op" value="-1.5708" />
+  <xacro:property name="cam_oy" value="0" />
+</root>

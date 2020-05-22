@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<robot name="gripper"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Constants for robot dimensions -->
+  <xacro:property name="gripper_width" value=".3" />
+  <xacro:property name="gripper_length" value=".4" />
+  <xacro:property name="gripper_height" value=".3" />
+  <xacro:property name="gripper_radius" value=".15" />
+  <xacro:property name="gripper_mass" value=".15" />
+
+  
+  <!-- Macro for cylinder mass moment of inertia -->
+  <xacro:macro name="cylinder_moment_of_inertia" params="m r h">
+    <inertia ixx="${m * (3 * r * r + h * h) / 12}" ixy="0.0" ixz="0.0"
+	     iyy="${m * (3 * r * r + h * h) / 12}" iyz="0.0"
+	     izz="${m * r * r / 2}" />
+  </xacro:macro>
+  
+  <!-- Macro for cuboid mass moment of inertia -->
+  <xacro:macro name="cuboid_moment_of_inertia" params="m d1 d2 d3">
+    <inertia ixx="${m * (d2 * d2 + d3 * d3) / 12}" ixy="0.0" ixz="0.0"
+	     iyy="${m * (d1 * d1 + d3 * d3) / 12}" iyz="0.0"
+	     izz="${m * (d1 * d1 + d2 * d2) / 12}" />
+  </xacro:macro>
+  
+
+  
+  <!-- Gripper link -->
+  <link name="gripper_link">
+    <visual>
+      <geometry>
+	<cylinder length="${gripper_length}" radius="${gripper_radius}" />
+      </geometry>
+      <material name="white">
+	<color rgba="1 1 1 1" />
+      </material>
+    </visual>
+
+    <!-- Note: must omit name="foo" because in Gazebo 7 the urdf parser has a bug that would make <gazebo reference="bar"> not work -->
+    <collision>
+      <geometry>
+	<cylinder length="${gripper_length}" radius="${gripper_radius}" />
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="${gripper_mass}" />
+      <xacro:cylinder_moment_of_inertia m="${gripper_mass}" r="${gripper_radius}" h="${gripper_length}" />
+    </inertial>
+  </link>
+
+</robot>
+

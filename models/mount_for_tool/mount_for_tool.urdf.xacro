@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<robot name="mount_for_tool"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Constants for robot dimensions -->
+  <xacro:property name="mount_width" value=".05" />
+  <xacro:property name="mount_length" value=".3" />
+  <xacro:property name="mount_height" value=".01" />
+  <xacro:property name="mount_mass" value=".15" />
+
+  
+  <!-- Macro for cuboid mass moment of inertia -->
+  <xacro:macro name="cuboid_moment_of_inertia" params="m d1 d2 d3">
+    <inertia ixx="${m * (d2 * d2 + d3 * d3) / 12}" ixy="0.0" ixz="0.0"
+	     iyy="${m * (d1 * d1 + d3 * d3) / 12}" iyz="0.0"
+	     izz="${m * (d1 * d1 + d2 * d2) / 12}" />
+  </xacro:macro>
+
+  
+  <!-- Mount link -->
+  <link name="mount_link">
+    <visual name="visual">
+      <geometry>
+	<box size="${mount_length} ${mount_width} ${mount_height}" />
+      </geometry>
+    </visual>
+    
+    <collision name="collision">
+      <geometry>
+	<box size="${mount_length} ${mount_width} ${mount_height}" />
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="${mount_mass}" />
+      <xacro:cuboid_moment_of_inertia m="${mount_mass}" d1="${mount_length}" d2="${mount_width}" d3="${mount_height}" />
+    </inertial>
+  </link>
+
+</robot>
+

@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<robot name="gripper"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+
+  <!-- Switch between EffortJointInterface and PositionJointInterface, still requires change in yaml files -->
+  <xacro:property name="using_position_not_effort" value="true" />
+
+  <!-- Constants for gripper joint controllers -->
+  <xacro:property name="effort_limit" value="500" />
+  <xacro:property name="gripper_friction" value="100" />
+  <xacro:property name="gripper_min_depth" value="0.001" />
+
+  <!-- Phantom link for center of gripper -->
+  <link name="gripper_center" >
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+    </inertial>
+  </link>
+
+  <!-- One side of gripper -->
+  <link name="side_p" >
+    <visual>
+      <origin xyz="0 0.177 0" rpy="${pi / 2} 0 ${5 * pi / 8}" />
+      <geometry>
+	<mesh filename="package://mobile_manipulator/models/gripper_fake/meshes/gripperClaw.STL"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0.177 0" rpy="${pi / 2} 0 ${5 * pi / 8}" />
+      <geometry>
+	<mesh filename="package://mobile_manipulator/models/gripper_fake/meshes/gripperClaw.STL"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1" />
+      <inertia ixx="0.01" ixy="0.005" ixz="0.0003" iyy="0.02" iyz="0.00004" izz="0.02" />
+    </inertial>
+  </link>
+
+  <!-- Second side of gripper -->
+  <link name="side_d" >
+    <visual>
+      <origin xyz="0 -0.177 0" rpy="${pi / 2} 0 ${-3 * pi / 8}" />
+      <geometry>
+	<mesh filename="package://mobile_manipulator/models/gripper_fake/meshes/gripperClaw.STL"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 -0.177 0" rpy="${pi / 2} 0 ${-3 * pi / 8}" />
+      <geometry>
+	<mesh filename="package://mobile_manipulator/models/gripper_fake/meshes/gripperClaw.STL"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1" />
+      <inertia ixx="0.01" ixy="0.005" ixz="0.0003" iyy="0.02" iyz="0.00004" izz="0.02" />
+    </inertial>
+  </link>
+  
+
+  <!-- Prismatic joint -->
+  <joint name="gripper_joint_p" type="prismatic">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="gripper_center" />
+    <child link="side_p" />
+    <limit effort="${effort_limit}" lower="-100" upper="100" velocity="0.5"/>
+  </joint>
+  
+  <joint name="gripper_joint_d" type="prismatic">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="gripper_center" />
+    <child link="side_d" />
+    <limit effort="${effort_limit}" lower="-100" upper="100" velocity="0.5"/>
+  </joint>
+
+  <!-- Transmission for ROS control -->
+  <xacro:if value="${using_position_not_effort == 'true'}">
+    <transmission name="gripper_joint_transmission_p">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="gripper_joint_p">
+	<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="gripper_joint_motor_p">
+	<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+	<mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+    
+    <transmission name="gripper_joint_transmission_d">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="gripper_joint_d">
+	<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="gripper_joint_motor_d">
+	<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+	<mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:if>
+  
+  <xacro:if value="${using_position_not_effort == 'false'}">
+    <transmission name="gripper_joint_transmission_p">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="gripper_joint_p">
+	<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="gripper_joint_motor_p">
+	<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+	<mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+    
+    <transmission name="gripper_joint_transmission_d">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="gripper_joint_d">
+	<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="gripper_joint_motor_d">
+	<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+	<mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:if>
+  
+
+  <!-- Enable joint feedback -->
+  <gazebo reference="gripper_joint_p">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+  
+  <gazebo reference="gripper_joint_d">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+  
+  <!-- ft_sensor plugin -->
+  <gazebo>
+    <plugin name="ft_sensor_p" filename="libgazebo_ros_ft_sensor.so">
+      <updateRate>100.0</updateRate>
+      <topicName>ft_sensor_topic_p</topicName>
+      <jointName>gripper_joint_p</jointName>
+    </plugin>
+  </gazebo>
+  
+  <gazebo>
+    <plugin name="ft_sensor_d" filename="libgazebo_ros_ft_sensor.so">
+      <updateRate>100.0</updateRate>
+      <topicName>ft_sensor_topic_d</topicName>
+      <jointName>gripper_joint_d</jointName>
+    </plugin>
+  </gazebo>
+  
+  <!-- High friction on gripper -->
+  <gazebo reference="gripper_wide_block_p">
+    <mu1>${gripper_friction}</mu1>
+    <mu2>${gripper_friction}</mu2>
+    <minDepth>${gripper_min_depth}</minDepth>  
+    <maxVel>0</maxVel>
+  </gazebo>
+  
+  <gazebo reference="gripper_wide_block_d">
+    <mu1>${gripper_friction}</mu1>
+    <mu2>${gripper_friction}</mu2>
+    <minDepth>${gripper_min_depth}</minDepth>  
+    <maxVel>0</maxVel>
+  </gazebo>
+
+</robot>
