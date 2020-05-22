@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>art_gazebo</name>
+  <name>gazebo</name>
   <version>0.0.0</version>
-  <description>The art_gazebo package</description>
+  <description>The gazebo module of the digital_twin package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

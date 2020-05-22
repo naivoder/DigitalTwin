@@ -10,13 +10,13 @@
   <arg name="is_joint_limited_ur10" default="true" />
 
   <!-- Load the mobile-arm description on the parameter server -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder	'$(find art_gazebo)/description/art.urdf.xacro' with_gripper:=$(arg is_using_gripper) is_joint_limited:=$(arg is_joint_limited_ur10)"/>
+  <param name="robot_description" command="$(find xacro)/xacro --inorder	'$(find gazebo)/description/art.urdf.xacro' with_gripper:=$(arg is_using_gripper) is_joint_limited:=$(arg is_joint_limited_ur10)"/>
     <!-- Load the mobile-arm description on the parameter server -->
-  <param name="creel_description" command="$(find xacro)/xacro --inorder	'$(find art_gazebo)/description/creel.urdf.xacro' with_gripper:=$(arg is_using_gripper) is_joint_limited:=$(arg is_joint_limited_ur10)"/>
+  <param name="creel_description" command="$(find xacro)/xacro --inorder	'$(find gazebo)/description/creel.urdf.xacro' with_gripper:=$(arg is_using_gripper) is_joint_limited:=$(arg is_joint_limited_ur10)"/>
 
   <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find art_gazebo)/world/art.world"/>
+    <arg name="world_name" value="$(find gazebo)/world/art.world"/>
     <arg name="debug" value="$(arg debug)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="paused" value="$(arg paused)"/>
@@ -30,8 +30,8 @@
 
 
   <!-- Controllers -->
-  <rosparam file="$(find art_gazebo)/control/joint_state_controller.yaml" command="load" />
-  <rosparam file="$(find art_gazebo)/control/mobile_base_fake_controller.yaml" command="load"/>
+  <rosparam file="$(find gazebo)/control/joint_state_controller.yaml" command="load" />
+  <rosparam file="$(find gazebo)/control/mobile_base_fake_controller.yaml" command="load"/>
   <rosparam file="$(find ur_gazebo)/controller/arm_controller_ur10.yaml" command="load" />
 
   
@@ -53,6 +53,6 @@
   </include>
   
   <!-- Launch Rviz -->
-  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find art_moveit)/launch/movit_rviz.launch" />
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find moveit)/launch/movit_rviz.launch" />
 
 </launch>
