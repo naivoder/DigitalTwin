@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<robot name="cone"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <link name="cone_link" >
+    <visual>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+      <geometry>
+	<mesh filename="package://mobile_manipulator/models/fixed_cone/meshes/Cone100.STL"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+      <geometry>
+	<mesh filename="package://mobile_manipulator/models/fixed_cone/meshes/Cone100.STL"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1" />
+      <inertia ixx="0.01" ixy="0.005" ixz="0.0003" iyy="0.02" iyz="0.00004" izz="0.02" />
+    </inertial>
+  </link>
+
+</robot>

@@ -1,0 +1,45 @@
+<sdf version='1.6'>
+  <model name='Creel_Rack_1_newOrigin'>
+    <link name='Creel_Rack_1_newOrigin'>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>-0.81448 -1.6602 1.4889 0 -0 0</pose>
+        <mass>29.197</mass>
+        <inertia>
+          <ixx>36.6294</ixx>
+          <ixy>0.0641746</ixy>
+          <ixz>-0.0190803</ixz>
+          <iyy>19.0388</iyy>
+          <iyz>0.055465</iyz>
+          <izz>23.2842</izz>
+        </inertia>
+      </inertial>
+      <collision name='Creel_Rack_1_newOrigin_collision'>
+        <pose frame=''>0 0 0 1.5708 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Creel_Rack_1_newOrigin/meshes/Creel_Rack_1_newOrigin.STL</uri>
+          </mesh>
+        </geometry>
+	
+      </collision>
+      <visual name='Creel_Rack_1_newOrigin_visual'>
+        <pose frame=''>0 0 0 1.5708 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Creel_Rack_1_newOrigin/meshes/Creel_Rack_1_newOrigin.STL</uri>
+          </mesh>
+        </geometry>
+	<material>
+    		<ambient>0 0.6 1 1</ambient>  
+      		<diffuse>0 0.6 1 1</diffuse>  
+      		<specular>0 0.6 1 1</specular>  
+      		<emissive>0.0 0.0 0.0 0.0</emissive> 
+	</material>
+      </visual>
+    </link>
+    <static>true</static>
+  </model>
+</sdf>

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<robot name="depth_camera"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Constants for robot dimensions -->
+  <xacro:property name="camera_width" value=".1" />
+  <xacro:property name="camera_length" value=".1" />
+  <xacro:property name="camera_height" value=".1" />
+  <xacro:property name="camera_mass" value=".1" />
+
+  
+  <!-- Macro for cuboid mass moment of inertia -->
+  <xacro:macro name="cuboid_moment_of_inertia" params="m d1 d2 d3">
+    <inertia ixx="${m * (d2 * d2 + d3 * d3) / 12}" ixy="0.0" ixz="0.0"
+	     iyy="${m * (d1 * d1 + d3 * d3) / 12}" iyz="0.0"
+	     izz="${m * (d1 * d1 + d2 * d2) / 12}" />
+  </xacro:macro>
+  
+
+  
+  <!-- Camera link -->
+  <link name="camera_link">
+    <visual name="visual">
+      <geometry>
+	<box size="${camera_length} ${camera_width} ${camera_height}" />
+      </geometry>
+    </visual>
+    
+    <collision name="collision">
+      <geometry>
+	<box size="${camera_length} ${camera_width} ${camera_height}" />
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="${camera_mass}" />
+      <xacro:cuboid_moment_of_inertia m="${camera_mass}" d1="${camera_length}" d2="${camera_width}" d3="${camera_height}" />
+    </inertial>
+  </link>
+
+</robot>
+

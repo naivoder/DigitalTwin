@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+<robot name="gripper"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  
+  <!-- Constants for robot dimensions -->
+  <xacro:property name="pi" value="3.14159265359" />
+  <xacro:property name="cone_radius" value=".14" />
+  
+  <xacro:property name="gripper_thickness" value=".01" />
+  <xacro:property name="gripper_height" value=".05" />
+  <xacro:property name="gripper_wide_block_width" value="${2 * (cone_radius + gripper_thickness)}" />
+  <xacro:property name="gripper_side_block_width" value="${1 * cone_radius}" />
+  
+  <xacro:property name="gripper_material_density" value="2700" />
+  <xacro:property name="gripper_wide_block_mass" value="${gripper_material_density * gripper_wide_block_width * gripper_thickness * gripper_height}" />
+  <xacro:property name="gripper_side_block_mass" value="${gripper_material_density * gripper_side_block_width * gripper_thickness * gripper_height}" />
+
+  
+  <!-- Macro for cuboid mass moment of inertia -->
+  <xacro:macro name="cuboid_moment_of_inertia" params="m d1 d2 d3">
+    <inertia ixx="${m * (d2 * d2 + d3 * d3) / 12}" ixy="0.0" ixz="0.0"
+	     iyy="${m * (d1 * d1 + d3 * d3) / 12}" iyz="0.0"
+	     izz="${m * (d1 * d1 + d2 * d2) / 12}" />
+  </xacro:macro>
+
+  <!-- Macro for gripper wide block -->
+  <xacro:macro name="gripper_wide_block" params="suffix">
+    <link name="gripper_wide_block_${suffix}">
+      <visual>
+	<geometry>
+	  <box size="${gripper_thickness} ${gripper_wide_block_width} ${gripper_height}" />
+	</geometry>
+      </visual>
+      
+      <collision name="collision">
+	<geometry>
+	  <box size="${gripper_thickness} ${gripper_wide_block_width} ${gripper_height}" />
+	</geometry>
+      </collision>
+
+      <inertial>
+	<mass value="${gripper_wide_block_mass}" />
+	<xacro:cuboid_moment_of_inertia m="${gripper_wide_block_mass}" d1="${gripper_thickness}" d2="${gripper_wide_block_width}" d3="${gripper_height}" />
+      </inertial>
+    </link>
+  </xacro:macro>
+
+  <!-- Macro for gripper side block -->
+  <xacro:macro name="gripper_side_block" params="suffix">
+  <link name="gripper_side_block_${suffix}">
+    <visual>
+      <geometry>
+	<box size="${gripper_side_block_width} ${gripper_thickness} ${gripper_height}" />
+      </geometry>
+    </visual>
+    
+    <collision name="collision">
+      <geometry>
+	<box size="${gripper_side_block_width} ${gripper_thickness} ${gripper_height}" />
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="${gripper_side_block_mass}" />
+      <xacro:cuboid_moment_of_inertia m="${gripper_side_block_mass}" d1="${gripper_side_block_width}" d2="${gripper_thickness}" d3="${gripper_height}" />
+    </inertial>
+  </link>
+  </xacro:macro>
+
+  <!-- Macro for fixed joints -->
+  <xacro:macro name="block_fixed_joints" params="suffix x y parent_suffix child_suffix">
+    <joint name="block_fixed_joint_${suffix}" type="fixed">
+      <origin xyz="${x} ${y} 0" rpy="0 0 0" />
+      <parent link="gripper_wide_block_${parent_suffix}" />
+      <child link="gripper_side_block_${child_suffix}" />    
+    </joint>
+  </xacro:macro>
+
+
+
+  <!-- Cuboids constituting gripper -->
+  <xacro:gripper_wide_block suffix="p" />
+  <xacro:gripper_side_block suffix="p1" />
+  <xacro:gripper_side_block suffix="p2" />
+  <xacro:gripper_wide_block suffix="d" />
+  <xacro:gripper_side_block suffix="d1" />
+  <xacro:gripper_side_block suffix="d2" />
+
+  <!-- Fixed joints -->
+  <xacro:block_fixed_joints suffix="p1" x="${(gripper_side_block_width + gripper_thickness) / 2}" y="${(gripper_wide_block_width - gripper_thickness) / 2}"
+			    parent_suffix="p" child_suffix="p1" />
+  <xacro:block_fixed_joints suffix="p2" x="${(gripper_side_block_width + gripper_thickness) / 2}" y="${-(gripper_wide_block_width - gripper_thickness) / 2}"
+			    parent_suffix="p" child_suffix="p2" />
+  <xacro:block_fixed_joints suffix="d1" x="${-(gripper_side_block_width + gripper_thickness) / 2}" y="${(gripper_wide_block_width - gripper_thickness) / 2}"
+			    parent_suffix="d" child_suffix="d1" />
+  <xacro:block_fixed_joints suffix="d2" x="${-(gripper_side_block_width + gripper_thickness) / 2}" y="${-(gripper_wide_block_width - gripper_thickness) / 2}"
+			    parent_suffix="d" child_suffix="d2" />
+
+  <!-- Prismatic joint -->
+  <joint name="gripper_joint" type="fixed">
+    <origin xyz="${2.1 * gripper_side_block_width + gripper_thickness} 0 0" rpy="0 0 0" />
+    <parent link="gripper_wide_block_p" />
+    <child link="gripper_wide_block_d" />    
+  </joint>
+
+  <transmission name="gripper_joint_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="gripper_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/gripper</robotNamespace>
+    </plugin>
+  </gazebo>
+
+</robot>
+
+<launch>
+<param name="robot_description" textfile="$(find simple_example_description)/urdf/robot.urdf" />
+<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -model simple_model -param robot_description -y -6"/>
+<!-- loads the controllers -->
+<rosparam file="$(find simple_example_description)/config/config.yaml" command="load" />
+<node name="controller_spawner" pkg="controller_manager" type="spawner" ns="/simple_model" args="base_to_second_joint_position_controller joint_state_controller --shutdown-timeout 3"/> 
+<!-- converts joint states to TF transforms -->
+<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
+    <remap from="/joint_states" to="/simple_model/joint_states" />
+</node>
+</launch>
